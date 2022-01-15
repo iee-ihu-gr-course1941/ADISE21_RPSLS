@@ -17,6 +17,13 @@ switch ($r=array_shift($request)){
 		switch($b=array_shift($request)){
 			case '':
 			case null: 
+				handle_board($method);
+				break;
+			case 'make_move':
+				make_move($input['choice'],$input['player_number'],$input['token']);
+				break;
+			case 'play_again':
+				play_again();
 				break;
 			default:
 				header("HTTP/1.1 404 Not Found");
@@ -53,4 +60,13 @@ function handle_player($method, $request,$input) {
             break;
 	}
 }
+
+function handle_board($method){
+	if($method=='GET'){
+		print json_encode(['errormesg'=>"Method $method not allowed here."]);
+	}else if($method=='POST'){
+		reset_board();
+	}
+}
+
 ?>

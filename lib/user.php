@@ -1,5 +1,15 @@
 <?php
 
+//SQL request για επιστροφή των πίνακα players
+function show_users() {
+	global $mysqli;
+	$sql = 'select username,player_number from players';
+	$st = $mysqli->prepare($sql);
+	$st->execute();
+	$res = $st->get_result();
+	header('Content-type: application/json');
+	print json_encode($res->fetch_all(MYSQLI_ASSOC), JSON_PRETTY_PRINT);
+}
 
 //Έλεγχος εάν η method είναι POST/GET
 function handle_user($method, $b,$input) {
@@ -64,6 +74,31 @@ function set_user($input) {
 	$res = $st->get_result();
 	header('Content-type: application/json');
 	print json_encode($res->fetch_all(MYSQLI_ASSOC), JSON_PRETTY_PRINT);
-	
-	
+}
+
+
+
+//Έλεγχος του token ότι υπάρχει και επιστροφή του παίχτη με το αυτό το token
+function current_player($token) {
+	global $mysqli;
+	if($token==null){
+		return(null);
+	}
+	$sql = 'select * from players where token=?';
+	$st = $mysqli->prepare($sql);
+	$st->bind_param('s',$token);
+	$st->execute();
+	$res = $st->get_result();
+	if($row=$res->fetch_assoc()) {
+		return($row['player_number']);
+	}
+	return(null);
+}
+
+//SQL request για να αρχικοποιήσει του παίχτες
+function remove_user(){
+	global $mysqli;
+	$sql = 'update players set username=null, token="", last_action=null where token!="" ';
+	$st = $mysqli->prepare($sql);
+	$st->execute();
 }

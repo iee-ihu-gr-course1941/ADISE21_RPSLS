@@ -12,6 +12,7 @@
 
 <body>
   <div class="main">
+  
     <!-- Title -->
     <div class="position-relative">
       <div class="container position-absolute top-0 start-50 translate-middle-x">
@@ -26,6 +27,8 @@
       </div>
     </div>
     <div class="container position-absolute top-50 start-50 translate-middle">
+	
+	
       <!-- left col -->
       <div class="row align-items-start">
         <div class="col">
@@ -51,6 +54,8 @@
             </div>
           </div>
         </div>
+		
+		
         <!-- center col -->
         <div class="col">
           <div id="loginCol" class="card text-white bg-dark mb-3 " >
@@ -71,6 +76,8 @@
             </div>
           </div>
         </div>
+		
+		
         <!-- right col -->
         <div class="col">
           <div id="gameInstructions">
@@ -80,6 +87,8 @@
             </b>
           </div>
         </div>
+		
+		
         <!-- 2nd Row -->
         <div class="row align-items-start">
 
@@ -131,6 +140,7 @@
       </div>
     </div>
   </div>
+  
   <!-- End Modal -->
   <div class="modal fade" id="end_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -151,6 +161,26 @@
     </div>
   </div>
 
+  <!-- Notify Modal -->
+  <div class="modal fade " id="notify_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/rpsls.js"></script>
 </body>
 
 </html>

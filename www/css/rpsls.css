@@ -24,3 +24,62 @@ width:100%;
 .gameInstructions {
   max-width: 31rem
 }
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+
+.loginCol{
+  max-width: 23rem; min-width: 23rem;
+}
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+.btn-circle.btn-lg {
+  width: 50px;
+  height: 50px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border-radius: 25px;
+}
+.btn-circle.btn-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  font-size: 24px;
+  line-height: 1.33;
+  border-radius: 35px;
+}
+.change-my-color {
+  filter: invert(33%) sepia(89%) saturate(1366%) hue-rotate(190deg) brightness(90%) contrast(85%);
+}
+
+.icon1{
+  height: 22px;
+}
+.icon2{
+  height: 40px;
+}
+.icon3{
+  height: 30px;
+}
+.icon4{
+  height: 18px;
+}
+.icon5{
+  height: 38px;
+}

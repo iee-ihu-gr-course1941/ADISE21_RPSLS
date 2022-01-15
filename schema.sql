@@ -33,6 +33,117 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `clean_board` ()  BEGIN
 	END$$
 
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `make_move` (IN `choice` TINYINT, IN `player_number` VARCHAR(10))  BEGIN
+        DECLARE player1 INT;
+        DECLARE player2 INT;
+        
+		IF (player_number LIKE 'p1') THEN
+		UPDATE `board` SET p1_choice=choice WHERE match_id=(SELECT MAX(match_id) FROM board);
+		END IF;
+		
+		IF (player_number LIKE 'p2') THEN
+		UPDATE `board` SET p2_choice=choice WHERE match_id=(SELECT MAX(match_id) FROM board);
+		END IF;
+		
+		UPDATE game_status SET player_turn=IF(player_number='p1','p2','p1');
+		
+        
+		SELECT p1_choice INTO player1 FROM `board`;
+		SELECT p2_choice INTO player2 FROM `board`;
+
+    IF (player1 IS NOT NULL AND player2 IS NOT NULL) THEN
+    
+    	IF player1=1 THEN
+			IF player2=3 OR player2=4 THEN
+				UPDATE `game_status` SET result='p1';
+				
+				UPDATE `game_status` SET status='ended';
+                END IF;
+			IF player2=2 OR player2=5 THEN
+				UPDATE `game_status` SET result='p2';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+    	END IF;
+        
+    	IF player1=2 THEN
+			IF player2=3 OR player2=4 THEN
+				UPDATE `game_status` SET result='p2';
+				
+				UPDATE `game_status` SET status='ended';
+            END IF;
+			IF player2=1 THEN
+				UPDATE `game_status` SET result='p1';
+				
+				UPDATE `game_status` SET status='ended';
+            END IF;
+    	END IF;
+        
+        IF player1=3 THEN
+			IF player2=2 OR player2=4 THEN
+				UPDATE `game_status` SET result='p1';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+            IF player2=1 OR player2=5 THEN
+				UPDATE `game_status` SET result='p2';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+    	END IF;
+        
+        IF player1=4 THEN
+			IF player2=1 OR player2=3 THEN
+				UPDATE `game_status` SET result='p2';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+            IF player2=2 OR player2=5 THEN
+				UPDATE `game_status` SET result='p1';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+    	END IF;
+        
+        IF player1=5 THEN
+			IF player2=1 OR player2=3 THEN
+				UPDATE `game_status` SET result='p1';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+            IF player2=2 OR player2=4 THEN
+				UPDATE `game_status` SET result='p2';
+				
+				UPDATE `game_status` SET status='ended';
+			END IF;
+    	END IF;
+        
+        IF player1=player2 THEN
+			UPDATE `game_status` SET result='D';
+			UPDATE `game_status` SET status='ended';
+    	END IF;
+        
+    END IF;
+    END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `play_again` ()  BEGIN
+
+
+	If (SELECT `status` FROM `game_status`) LIKE 'ended' THEN
+		TRUNCATE TABLE board;
+		IF (SELECT result FROM `game_status`)='D' THEN
+		UPDATE `game_status` SET `player_turn`='p' + FLOOR( 1 + RAND( ) *2 );
+		ELSE UPDATE `game_status` SET `player_turn`=(SELECT result FROM `game_status`);
+		END IF;
+		REPLACE INTO `board` SELECT * FROM `board_empty`;
+		UPDATE `board` SET `p1_choice`=null, `p1_choice`=NULL, `winner`=NULL WHERE match_id=1;
+		
+		UPDATE `game_status` SET `status`='started', `result`=NULL;
+	END IF;
+		
+	END$$
+
+
 DELIMITER ;
 
 -- --------------------------------------------------------

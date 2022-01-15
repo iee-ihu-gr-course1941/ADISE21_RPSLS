@@ -48,7 +48,11 @@ function make_move($choice,$player_number,$token) {
 
 //Καλεί την stored precedure που κάνει την κίνηση του παίχτη
 function do_move($choice,$player_number) {
-	// 
+	global $mysqli;
+	$sql = 'call `make_move`(?,?);';
+	$st = $mysqli->prepare($sql);
+	$st->bind_param('is',$choice,$player_number);
+	$st->execute();
 }
 
 //Καλεί την stored precedure που ετοιμάζει την βάση για δεύτερο παιχνίδι με τους ίδιους παίχτες

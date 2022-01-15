@@ -2,11 +2,71 @@
 <html lang="en">
 
 <head>
-
-  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="css/rpsls.css">
+  <title>RPSLS</title>
 </head>
 
 <body>
+  <div class="main">
+    <!-- Title -->
+    <div class="position-relative">
+      <div class="container position-absolute top-0 start-50 translate-middle-x">
+        <div class=" row align-items-start">
+          <div class="col ">
+            <br>
+            <h1 class="text-center text-white">
+              <p>Rock Paper Scissors Lizard Spock</p>
+            </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container position-absolute top-50 start-50 translate-middle">
+      <!-- left col -->
+      <div class="row align-items-start">
+        <div class="col">
+          <div id="playerControls">
+            <div class="playButtons">
+              <button class="btn btn-dark " id="Rock">Rock</button>
+              <button class="btn btn-dark " id="Paper">Paper</button>
+              <button class="btn btn-dark " id="Scissors">Scissors</button>
+              <button class="btn btn-dark " id="Lizard">Lizard</button>
+              <button class="btn btn-dark " id="Spock">Spock</button>
+            </div>
+            <div>
+              <br>
+              <h6 id="player_turn" class="text-white"></h6>
+            </div>
+          </div>
+        </div>
+        <!-- center col -->
+        <div class="col">
+          <div id="loginCol">
+          </div>
+        </div>
+        <!-- right col -->
+        <div class="col">
+          <div id="gameInstructions" style="max-width: 31rem">
+            <br>
+            <b>
+              <h2 id="game_info" class="text-white text-center">Your turn to play!</h2>
+            </b>
+          </div>
+        </div>
+        <!-- 2nd Row -->
+        <div class="row align-items-start">
 
+          <div class="col"></div>
+          <div class="col text-center text-white"> Login here
+          </div>
+          <div class="col"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

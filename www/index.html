@@ -42,31 +42,91 @@
             </div>
           </div>
         </div>
+		
+		
         <!-- center col -->
         <div class="col">
           <div id="loginCol">
           </div>
         </div>
+		
+		
         <!-- right col -->
         <div class="col">
-          <div id="gameInstructions" style="max-width: 31rem">
+          <div id="gameInstructions">
             <br>
             <b>
               <h2 id="game_info" class="text-white text-center">Your turn to play!</h2>
             </b>
           </div>
         </div>
+		
+		
         <!-- 2nd Row -->
         <div class="row align-items-start">
 
           <div class="col"></div>
-          <div class="col text-center text-white"> Login here
+          <div class="col text-center">
+            <br>
+            <span><input id="reset_game" class="btn btn-outline-light" type="submit" value="Reset"></span>
+            <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              Rules
+            </button>
           </div>
           <div class="col"></div>
         </div>
       </div>
     </div>
   </div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-dark">
+          <h5 class="col-12 modal-title btn-dark text-white text-center" id="exampleModalLabel">RULES</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-white bg-dark text-center">
+
+          <ol style="list-style-type:none">
+            <li>Scissors cuts Paper</li>
+            <li>Paper covers Rock</li>
+            <li>Rock crushes Lizard</li>
+            <li>Lizard poisons Spock</li>
+            <li>Spock smashes Scissors</li>
+            <li>Scissors decapitates Lizard</li>
+            <li>Lizard eats Paper</li>
+            <li>Paper disproves Spock</li>
+            <li>Spock vaporizes Rock</li>
+            <li>(and as it always has) Rock crushes Scissors</li>
+          </ol>
+        </div>
+        <div class="col-12 modal-footer bg-dark text-center">
+          <button type="button" class="btn btn-primary text-white" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal -->
+  <div class="modal fade" id="end_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">The game has ended</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Would you like to play another round with this opponent?
+        </div>
+        <div class="modal-footer">
+          <button id="modal_quit" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quit</button>
+          <button id="modal_play" type="button" class="btn btn-primary">Play Again!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>

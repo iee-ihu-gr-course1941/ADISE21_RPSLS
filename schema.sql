@@ -161,46 +161,43 @@ DELIMITER ;
 --
 -- Table structure for table `board`
 --
-
+DROP TABLE IF EXISTS `board`;
 CREATE TABLE `board` (
   `match_id` mediumint(9) NOT NULL,
   `p1_choice` char(10) DEFAULT NULL,
-  `p2_choice` char(10) DEFAULT NULL,
-  `winner` enum('p1','p2','D') DEFAULT NULL
+  `p2_choice` char(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `board`
 --
-
-INSERT INTO `board` (`match_id`, `p1_choice`, `p2_choice`, `winner`) VALUES
-(1, NULL, NULL, NULL);
+INSERT INTO `board` (`match_id`, `p1_choice`, `p2_choice`) VALUES
+(1, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `board_empty`
 --
-
+DROP TABLE IF EXISTS `board_empty`;
 CREATE TABLE `board_empty` (
   `match_id` mediumint(9) NOT NULL,
   `p1_choice` char(10) DEFAULT NULL,
-  `p2_choice` char(10) DEFAULT NULL,
-  `winner` enum('p1','p2','D') DEFAULT NULL
+  `p2_choice` char(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `board_empty`
 --
-
-INSERT INTO `board_empty` (`match_id`, `p1_choice`, `p2_choice`, `winner`) VALUES
-(1, NULL, NULL, NULL);
+INSERT INTO `board_empty` (`match_id`, `p1_choice`, `p2_choice`) VALUES
+(1, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `game_status`
 --
+DROP TABLE IF EXISTS `game_status`;
 CREATE TABLE `game_status` (
   `status` enum('not active','initialized','started','ended','aborded') NOT NULL DEFAULT 'not active',
   `player_turn` enum('p1','p2') DEFAULT NULL,
@@ -212,7 +209,6 @@ CREATE TABLE `game_status` (
 --
 -- Dumping data for table `game_status`
 --
-
 INSERT INTO `game_status` (`status`, `player_turn`, `result`, `result_text`, `last_change`) VALUES
 ('not active', NULL, NULL, NULL, '2022-01-15 19:11:09');
 
@@ -220,6 +216,7 @@ INSERT INTO `game_status` (`status`, `player_turn`, `result`, `result_text`, `la
 -- Triggers `game_status`
 --
 DELIMITER $$
+DROP TRIGGER IF EXISTS `game_status_update`;
 CREATE TRIGGER `game_status_update` BEFORE UPDATE ON `game_status` FOR EACH ROW BEGIN
 		SET NEW.last_change=NOW();
 	END
@@ -231,22 +228,20 @@ DELIMITER ;
 --
 -- Table structure for table `players`
 --
-
+DROP TABLE IF EXISTS `players`;
 CREATE TABLE `players` (
   `username` varchar(50) DEFAULT NULL,
   `player_number` enum('p1','p2') NOT NULL,
   `token` varchar(100) NOT NULL,
-  `last_action` timestamp NULL DEFAULT NULL,
-  `score` int(11) NOT NULL
+  `last_action` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `players`
 --
-
-INSERT INTO `players` (`username`, `player_number`, `token`, `last_action`, `score`) VALUES
-(NULL, 'p1', '', NULL, 0),
-(NULL, 'p2', '', NULL, 0);
+INSERT INTO `players` (`username`, `player_number`, `token`, `last_action`) VALUES
+(NULL, 'p1', '', NULL),
+(NULL, 'p2', '', NULL);
 
 --
 -- Indexes for dumped tables

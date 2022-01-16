@@ -3,21 +3,12 @@
 //SQL request για επιστροφή των πίνακα players
 function show_users() {
 	global $mysqli;
-	$sql = 'select username,player_number from players';
+	$sql = 'select username from players';
 	$st = $mysqli->prepare($sql);
 	$st->execute();
 	$res = $st->get_result();
 	header('Content-type: application/json');
 	print json_encode($res->fetch_all(MYSQLI_ASSOC), JSON_PRETTY_PRINT);
-}
-
-//Έλεγχος εάν η method είναι POST/GET
-function handle_user($method, $b,$input) {
-	if($method=='GET') {
-		header("HTTP/1.1 400 Bad Request");
-	} else if($method=='POST') {
-        set_user($input);
-    }
 }
 
 //η μέθοδος απο loginuser με διάφορους ελέγχους
@@ -32,7 +23,6 @@ function set_user($input) {
 	$player_number=$input['player_number'];
 	
 	global $mysqli;
-	
 	//Έλεγχος εάν υπάρχουν ήδη παίχτες που παίζουν.
 	$sql = 'select count(*) as c from players where username is not null';
 	$st = $mysqli->prepare($sql);
@@ -65,6 +55,7 @@ function set_user($input) {
 	$st2->bind_param('sss',$username,$username,$player_number);
 	$st2->execute();
 
+
 	
 	update_game_status();
 	$sql = 'select * from players where player_number=?';
@@ -76,7 +67,14 @@ function set_user($input) {
 	print json_encode($res->fetch_all(MYSQLI_ASSOC), JSON_PRETTY_PRINT);
 }
 
-
+//Έλεγχος εάν η method είναι POST/GET
+function handle_user($method, $b,$input) {
+	if($method=='GET') {
+		header("HTTP/1.1 400 Bad Request");
+	} else if($method=='POST') {
+        set_user($input);
+    }
+}
 
 //Έλεγχος του token ότι υπάρχει και επιστροφή του παίχτη με το αυτό το token
 function current_player($token) {

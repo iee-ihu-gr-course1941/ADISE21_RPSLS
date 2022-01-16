@@ -1,4 +1,5 @@
 var me={ nickname: null, token: null, player_number: null };
+var players;
 var score={ me: 0, opponent: 0}
 var game_status={};
 var timer=null;
@@ -17,11 +18,6 @@ $(function() {
     $('#reset_game').hide();
     $('#playerControls').hide();
     $('#gameInstructions').hide();
-
-	// if ($('#notify_modal').is(':visible')) {
-	// 	console.log("notify modal is open");
-	// }
-
 
 	//Sound Switch
 	document.querySelector("#sound_switch").addEventListener("click", (e) => {
@@ -198,8 +194,24 @@ function update_info(){
 	}else { player_turn='Player 2';}
 
 	if(game_status.status=='started' && me.token!=null){
-		$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
-        + game_status.status + '<b>');
+		
+		if (players==null) {
+			$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
+			+ game_status.status + '<b>');
+		} else {
+			if (me.player_number=='p1') {
+				$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>"+ players[1].username + ": " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
+				+ game_status.status + '<b>');
+			} else if (me.player_number=='p2') {
+				$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>"+ players[0].username + ": " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
+				+ game_status.status + '<b>');
+			} else {
+				$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
+				+ game_status.status + '<b>');
+			}
+		}
+		
+		
 
 
 		if (game_status.player_turn==me.player_number) {
@@ -237,14 +249,31 @@ function update_status(data) {
 		reset_board();
 	}
 
+
+	// Getting opponent's username
+	if (game_status_old.status==null && game_status.status=='started' && me.token!=null){
+		$.ajax({url: "rpsls.php/players/", 
+			success: function (data) {
+				players = data;
+			}, 
+			headers: {"X-Token": me.token}});
+	} else if (game_status_old.status=='initialized' && game_status.status=='started'){
+		$.ajax({url: "rpsls.php/players/", 
+			success: function (data) {
+				players = data;
+			}, 
+			headers: {"X-Token": me.token}});
+	}
+
 	if (game_status_old.status=='ended' && game_status.status=='not active'){
 		if (surrendered==false) {notify("Oh no!", "Opponent left.");}
+		score.me=0; score.opponent=0;
 		reset_board();
 	}
 	
 	if(game_status_old.status=='started' && game_status.status=='not active'){
-		if (surrendered==false) { notify("HAHA!", "Enemy player surrendered. Game restarted"); } else { surrendered=false; };
-
+		if (!surrendered) { notify("HAHA!", "Enemy player surrendered. Game restarted"); } else { surrendered=false; };
+		score.me=0; score.opponent=0;
 		reset_board();
 		document.querySelector('#reset_game').setAttribute('value','Reset');
 		update_info();

@@ -1,12 +1,5 @@
 <?php
 
-//Γύρισμα του board από το αποτέλεσμα της read_board
-function show_board() {
-	global $mysqli;
-		header('Content-type: application/json');
-		print json_encode(read_board(), JSON_PRETTY_PRINT);
-}
-
 //SQL request για αρχικοποίηση του πίκανα board
 function reset_board() {
 	global $mysqli;

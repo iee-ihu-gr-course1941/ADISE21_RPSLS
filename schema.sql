@@ -25,15 +25,18 @@ DELIMITER $$
 --
 -- Procedures
 --
+DROP PROCEDURE IF EXISTS `clean_board`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `clean_board` ()  BEGIN
 		TRUNCATE TABLE board;
 		REPLACE INTO `board` SELECT * FROM `board_empty`;
         UPDATE `players` SET username=NULL, token=NULL, last_action=NULL;
-		UPDATE `game_status` SET `status`='not active', `player_turn`=NULL, `result`=NULL;
+		UPDATE `game_status` SET `status`='not active', `player_turn`=NULL, `result_text`=NULL , `result`=NULL;
 	END$$
 
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `make_move` (IN `choice` TINYINT, IN `player_number` VARCHAR(10))  BEGIN
+DROP PROCEDURE IF EXISTS `make_move`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `make_move`(IN `choice` TINYINT, IN `player_number` VARCHAR(10))
+BEGIN
         DECLARE player1 INT;
         DECLARE player2 INT;
         
@@ -54,78 +57,85 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `make_move` (IN `choice` TINYINT, IN
     IF (player1 IS NOT NULL AND player2 IS NOT NULL) THEN
     
     	IF player1=1 THEN
-			IF player2=3 OR player2=4 THEN
-				UPDATE `game_status` SET result='p1';
-				
-				UPDATE `game_status` SET status='ended';
-                END IF;
-			IF player2=2 OR player2=5 THEN
-				UPDATE `game_status` SET result='p2';
-				
-				UPDATE `game_status` SET status='ended';
+			IF player2=3 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Rock crushes Scissors', `status`='ended';
+			ELSEIF player2=4 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Rock crushes Lizard', `status`='ended';
+			
+			ELSEIF player2=2 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Paper covers Rock', `status`='ended';
+			
+			ELSEIF player2=5 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Spock vaporizes Rock', `status`='ended';
 			END IF;
     	END IF;
         
     	IF player1=2 THEN
-			IF player2=3 OR player2=4 THEN
-				UPDATE `game_status` SET result='p2';
-				
-				UPDATE `game_status` SET status='ended';
-            END IF;
-			IF player2=1 THEN
-				UPDATE `game_status` SET result='p1';
-				
-				UPDATE `game_status` SET status='ended';
-            END IF;
+			IF player2=3 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Scissors cuts Paper', `status`='ended';
+			
+			ELSEIF player2=4 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Lizard eats Paper', `status`='ended';
+			
+			ELSEIF player2=1 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Paper covers Rock', `status`='ended';
+			END IF;
     	END IF;
         
         IF player1=3 THEN
-			IF player2=2 OR player2=4 THEN
-				UPDATE `game_status` SET result='p1';
-				
-				UPDATE `game_status` SET status='ended';
-			END IF;
-            IF player2=1 OR player2=5 THEN
-				UPDATE `game_status` SET result='p2';
-				
-				UPDATE `game_status` SET status='ended';
+			IF player2=2 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Scissors cuts Paper', `status`='ended';
+			
+			ELSEIF player2=4 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Scissors decapitates Lizard', `status`='ended';
+			
+			ELSEIF player2=1 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Rock crushes Scissors', `status`='ended';
+			
+			ELSEIF player2=5 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Spock smashes Scissors', `status`='ended';
 			END IF;
     	END IF;
         
         IF player1=4 THEN
-			IF player2=1 OR player2=3 THEN
-				UPDATE `game_status` SET result='p2';
-				
-				UPDATE `game_status` SET status='ended';
-			END IF;
-            IF player2=2 OR player2=5 THEN
-				UPDATE `game_status` SET result='p1';
-				
-				UPDATE `game_status` SET status='ended';
-			END IF;
-    	END IF;
-        
-        IF player1=5 THEN
-			IF player2=1 OR player2=3 THEN
-				UPDATE `game_status` SET result='p1';
-				
-				UPDATE `game_status` SET status='ended';
-			END IF;
-            IF player2=2 OR player2=4 THEN
-				UPDATE `game_status` SET result='p2';
-				
-				UPDATE `game_status` SET status='ended';
+			IF player2=1 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Rock crushes Lizard', `status`='ended';
+			
+			ELSEIF player2=3 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Scissors decapitates Lizard', `status`='ended';
+			
+			ELSEIF player2=2 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Lizard eats Paper', `status`='ended';
+			
+			ELSEIF player2=5 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Lizard poisons Spock', `status`='ended';
 			END IF;
     	END IF;
         
-        IF player1=player2 THEN
-			UPDATE `game_status` SET result='D';
-			UPDATE `game_status` SET status='ended';
+	IF player1=5 THEN
+			IF player2=1 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Spock vaporizes Rock', `status`='ended';
+			
+			ELSEIF player2=3 THEN
+				UPDATE `game_status` SET `result`='p1', result_text='Spock smashes Scissors', `status`='ended';
+			
+			ELSEIF player2=2 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Paper disproves Spock', `status`='ended';
+			
+			ELSEIF player2=4 THEN
+				UPDATE `game_status` SET `result`='p2', result_text='Lizard poisons Spock', `status`='ended';
+			END IF;
     	END IF;
+        
+	IF player1=player2 THEN
+		UPDATE `game_status` SET `result`='D', `status`='ended';
+	END IF;
         
     END IF;
     END$$
 
+
+DROP PROCEDURE IF EXISTS `play_again`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `play_again` ()  BEGIN
 
 
@@ -191,11 +201,11 @@ INSERT INTO `board_empty` (`match_id`, `p1_choice`, `p2_choice`, `winner`) VALUE
 --
 -- Table structure for table `game_status`
 --
-
 CREATE TABLE `game_status` (
   `status` enum('not active','initialized','started','ended','aborded') NOT NULL DEFAULT 'not active',
   `player_turn` enum('p1','p2') DEFAULT NULL,
   `result` enum('p1','p2','D') DEFAULT NULL,
+  `result_text` CHAR(50) DEFAULT NULL,
   `last_change` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -203,8 +213,8 @@ CREATE TABLE `game_status` (
 -- Dumping data for table `game_status`
 --
 
-INSERT INTO `game_status` (`status`, `player_turn`, `result`, `last_change`) VALUES
-('not active', NULL, NULL, '2022-01-15 19:11:09');
+INSERT INTO `game_status` (`status`, `player_turn`, `result`, `result_text`, `last_change`) VALUES
+('not active', NULL, NULL, NULL, '2022-01-15 19:11:09');
 
 --
 -- Triggers `game_status`

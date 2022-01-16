@@ -3,6 +3,9 @@ var score={ me: 0, opponent: 0}
 var game_status={};
 var timer=null;
 var notify_modal = new bootstrap.Modal(document.getElementById("notify_modal"), {});
+var end_modal = new bootstrap.Modal(document.getElementById("end_modal"), {});
+var surrendered=false;
+
 
 $(function() {
 
@@ -24,7 +27,7 @@ $(function() {
 
 function login_to_game() {
 	if($('#username').val()=='') {
-		notify("You have to set a username!");
+		notify("Oh no!", "You have to set a username!");
 		return;
 	} 
 
@@ -76,7 +79,9 @@ function update_info(){
         + game_status.status + '<b>');
 
 
-		$('#player_turn').html("<h6> It's " + player_turn +'</b> turn to play now.</h6>');
+		if (game_status.player_turn==me.player_number) {
+			$('#player_turn').html("<h6> It's </b> your turn to play now.</h6>");
+		} else {  $('#player_turn').html("<h6> It's " + player_turn +'</b> turn to play now.</h6>'); }
 	}else{
 		$('#game_info').html("<h4><b> Score:</h4></b>"  + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '+ game_status.status);
         $('#player_turn').html("<h6>Playing as " + player + "</h6>");
@@ -109,10 +114,78 @@ function game_status_update() {
 	headers: {"X-Token": me.token}});
 }
 
+function update_status(data) {
+	if (data==null) {
+		return;
+	}
+	last_update=new Date().getTime();
+	var game_status_old = game_status;
+	game_status=data[0];
+	winner = game_status.result;
+	update_info();
+	clearTimeout(timer);
+	
+	if (me.token!=null){
+		$('#reset_game').show();
+	}else{
+		$('#reset_game').hide();
+	}
+
+	
+	if (game_status_old.status=='initialized' && game_status.status=='not active' && me.token!=null){
+		notify("Oh no!", "No player found. Game reset.");
+		reset_board();
+	}
+
+	if (game_status_old.status=='ended' && game_status.status=='not active'){
+		if (surrendered==false) {notify("Oh no!", "Opponent left.");}
+		reset_board();
+	}
+	
+	if(game_status_old.status=='started' && game_status.status=='not active'){
+		if (surrendered==false) { notify("HAHA!", "Enemy player surrendered. Game restarted"); } else { surrendered=false; };
+
+		reset_board();
+		document.querySelector('#reset_game').setAttribute('value','Reset');
+		update_info();
+	}
+		
+	if (game_status.status=='started' && me.token!=null){
+		document.querySelector('#reset_game').setAttribute('value','Surrender');
+	}
+	
+	if (game_status.status == 'aborded' && game_status_old.status != 'aborded') {
+		update_info();
+		opponent_aborded(game_status);
+		update_info();
+        reset_board();
+		return;
+	}
+	
+	if (game_status.status == 'ended' && game_status_old.status != 'started') {
+		alert_winner();
+
+		update_status();
+		update_info();
+		return;
+
+    } else { 
+		timer= setTimeout(function() { game_status_update();}, 500); 
+	}
+}
+
 
 //Ajax request για κίνηση
 function do_move(choice) {
-	//
+	player_number = me.player_number;
+
+	$.ajax({url: "rpsls.php/board/make_move/", 
+			method: 'POST',
+			dataType: "json",
+			headers: { "X-Token": me.token },
+			contentType: 'application/json',
+			data: JSON.stringify( {choice, player_number}),
+			success: game_status_update});
 }
 
 function reset_board() {
@@ -128,6 +201,8 @@ function reset_board() {
     $('#playerControls').hide(150);
     $('#gameInstructions').hide(150);
     $('#loginCol').show(500);
+
+	game_status_update();
 }
 
 function show_error(data) {
@@ -135,6 +210,73 @@ function show_error(data) {
 	alert(x.errormesg);
 }
 
-function notify(text) {
-	alert(text);
+function notify(title,body) {
+	$("#notify_modal .modal-title").text(title);
+	$("#notify_modal .modal-body").text(body);
+	notify_modal.show();
+}
+
+//Ενημέρωση των παιχτών για aborded
+function opponent_aborded(data){
+	who_left= data.result;
+	if (me.token!=null){
+		if (who_left==me.player_number){
+			notify("Goodbye!", 'You aborded the game.');
+		}else{
+			notify("HAHA!", 'Your opponent has aborded the game.');
+		}
+	
+	}
+}
+
+//Ενημέρωση του χρήστη αν έχασε ή νίκησε, και ενημέρωση του score 
+function alert_winner() {
+	winner = game_status.result;
+	if (me.token!=null){
+		
+		if (winner=='D'){
+			play_again('The game was a tie..', null);
+		}else if (winner==me.player_number){
+			score.me++;
+			play_again('You won because ' + game_status.result_text, true);
+		}else{
+			score.opponent++;
+			play_again('You lost because ' + game_status.result_text, false);
+		}
+	}
+}
+
+//Όταν πατήσει ο χρήστης Play Again
+function play_again(title, won) {
+
+	$("#end_modal .modal-title").text(title);
+	
+	// $("#end_modal .modal-header").classList.ädd("modal-header-success");
+
+	$('#modal_quit').on('click', function(){ surrendered=true; update_info(); reset_board(); });
+
+	$('#modal_play').on('click', function(){ 
+		$.ajax({url: "rpsls.php/board/play_again/", 
+		method: 'POST',
+		dataType: "json",
+		headers: { "X-Token": me.token },
+		contentType: 'application/json',
+		success: delay(500).then(() => game_status_update())});
+
+		end_modal.hide();
+	});
+
+	if (won==true) {
+		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-success");
+	} else if (won==false) {
+		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-danger");
+	}
+
+	end_modal.show();
+}
+
+//delay function για μέθοδο play_again (χρειάζεται μερικά ms για να διαβάσει το ανανεωμένο status)
+function delay(time) {
+	return new Promise(resolve => setTimeout(resolve, time));
+  }
 }

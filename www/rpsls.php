@@ -34,7 +34,11 @@ switch ($r=array_shift($request)){
 			handle_player($method,$request,$input);
 			break;
 	case 'status':
-		
+		if (sizeof($request)==0){
+			show_status();
+		}else{
+			header("HTTP/1.1 404 Not Found");
+		}
 		break;
 
 	default:
@@ -47,7 +51,8 @@ function handle_player($method, $request,$input) {
 		case '':
 		case null:
 			if($method=='GET'){
-				//show
+				show_users($method);
+				reset_board();
 			}else if($method=='POST'){
 				handle_user($method, $b,$input);
 			}else{

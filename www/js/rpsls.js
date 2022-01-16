@@ -193,22 +193,24 @@ function update_info(){
 		player_turn='Player 1';
 	}else { player_turn='Player 2';}
 
+	if (players==null) {
+		opponent="Opponent";
+	} else {
+		if (me.player_number=='p1') {
+			opponent=players[1].username;
+		} else if (me.player_number=='p2') {
+			opponent=players[0].username;
+		} 
+	}
+
 	if(game_status.status=='started' && me.token!=null){
 		
 		if (players==null) {
 			$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
 			+ game_status.status + '<b>');
 		} else {
-			if (me.player_number=='p1') {
-				$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>"+ players[1].username + ": " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
-				+ game_status.status + '<b>');
-			} else if (me.player_number=='p2') {
-				$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>"+ players[0].username + ": " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
-				+ game_status.status + '<b>');
-			} else {
-				$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
-				+ game_status.status + '<b>');
-			}
+			$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>"+ opponent + ": " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
+			+ game_status.status + '<b>');
 		}
 		
 		
@@ -217,7 +219,7 @@ function update_info(){
 		if (game_status.player_turn==me.player_number) {
 			$('#player_turn').html("<h6> It's </b> your turn to play now.</h6>");
 		} else {  
-			$('#player_turn').html("<h6> It's " + player_turn +'</b> turn to play now.</h6>'); 
+			$('#player_turn').html("<h6> It's " + opponent +'</b> turn to play now.</h6>');
 		}
 	}else{
 		$('#game_info').html("<h4><b> Score:</h4></b>"  + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '+ game_status.status);
@@ -266,7 +268,7 @@ function update_status(data) {
 	}
 
 	if (game_status_old.status=='ended' && game_status.status=='not active'){
-		if (surrendered==false) {notify("Oh no!", "Opponent left.");}
+		if (surrendered==false) { notify("Oh no!", "Opponent left."); }
 		score.me=0; score.opponent=0;
 		reset_board();
 	}

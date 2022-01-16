@@ -2,10 +2,14 @@ var me={ nickname: null, token: null, player_number: null };
 var score={ me: 0, opponent: 0}
 var game_status={};
 var timer=null;
+var last_update=new Date().getTime();
 var notify_modal = new bootstrap.Modal(document.getElementById("notify_modal"), {});
 var end_modal = new bootstrap.Modal(document.getElementById("end_modal"), {});
 var surrendered=false;
+var sounds=true;
 
+const audioYouWin = document.querySelector("[data-sound=you-win]");
+const audioYouLose = document.querySelector("[data-sound=you-lose]");
 
 $(function() {
 
@@ -14,6 +18,15 @@ $(function() {
     $('#playerControls').hide();
     $('#gameInstructions').hide();
 
+	// if ($('#notify_modal').is(':visible')) {
+	// 	console.log("notify modal is open");
+	// }
+
+
+	//Sound Switch
+	document.querySelector("#sound_switch").addEventListener("click", (e) => {
+		sounds = !sounds;
+	  });
 
     $('#Rock').on('click', function(){ do_move(1); });
     $('#Paper').on('click', function(){ do_move(2); });
@@ -21,10 +34,91 @@ $(function() {
     $('#Lizard').on('click', function(){ do_move(4); });
     $('#Spock').on('click', function(){ do_move(5); });
 
-
-	$('#reset_game').on('click', function(){ reset_board(); });
+	$('#reset_game').on('click', function(){ 
+		surrendered=true;
+		reset_board(); 
+	});
 });
 
+//Ajax request για κίνηση
+function do_move(choice) {
+	player_number = me.player_number;
+
+	$.ajax({url: "rpsls.php/board/make_move/", 
+			method: 'POST',
+			dataType: "json",
+			headers: { "X-Token": me.token },
+			contentType: 'application/json',
+			data: JSON.stringify( {choice, player_number}),
+			success: game_status_update});
+}
+
+function notify(title,body) {
+	$("#notify_modal .modal-title").text(title);
+	$("#notify_modal .modal-body").text(body);
+	notify_modal.show();
+}
+
+//delay function για μέθοδο play_again (χρειάζεται μερικά ms για να διαβάσει το ανανεωμένο status)
+function delay(time) {
+	return new Promise(resolve => setTimeout(resolve, time));
+  }
+
+//Όταν πατήσει ο χρήστης Play Again
+function play_again(title, won) {
+
+	$("#end_modal .modal-title").text(title);
+	
+	// $("#end_modal .modal-header").classList.ädd("modal-header-success");
+
+	$('#modal_quit').on('click', function(){ surrendered=true; update_info(); reset_board(); });
+
+	$('#modal_play').on('click', function(){ 
+		$.ajax({url: "rpsls.php/board/play_again/", 
+		method: 'POST',
+		dataType: "json",
+		headers: { "X-Token": me.token },
+		contentType: 'application/json',
+		success: delay(500).then(() => game_status_update())});
+
+		end_modal.hide();
+	});
+
+	if (won=="won") {
+		document.getElementById('end_modal').querySelector(".modal-header").classList.remove("modal-header-danger", "modal-header-primary");
+		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-success");
+	} else if (won=="lost") {
+		document.getElementById('end_modal').querySelector(".modal-header").classList.remove("modal-header-success", "modal-header-primary");
+		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-danger");
+	} else {
+		document.getElementById('end_modal').querySelector(".modal-header").classList.remove("modal-header-success", "modal-header-danger");
+		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-primary");
+	}
+
+	end_modal.show();
+}
+
+
+//Ajax request για αρχικοποίηση του board
+function reset_board() {
+	clearTimeout(timer);
+	if (game_status.status!='not active') {
+		$.ajax({url: "rpsls.php/board/",
+		headers: {"X-Token": me.token},
+		method: 'POST'});
+	}
+	me = { nickname: null, token: null, color_picked: null };
+
+    
+    $('#reset_game').hide(150);
+    $('#playerControls').hide(150);
+    $('#gameInstructions').hide(150);
+    $('#loginCol').show(500);
+
+	game_status_update();
+}
+
+//Ajax request για το login
 function login_to_game() {
 	if($('#username').val()=='') {
 		notify("Oh no!", "You have to set a username!");
@@ -46,6 +140,36 @@ function login_to_game() {
 	
 }
 
+//Εισαγωγή των στοιχείων του παίχτη και ενημέρωση του games_status
+function login_result(data) {
+	me = data[0];
+	$('#loginCol').hide();
+    $('#reset_game').show();
+    $('#playerControls').show();
+    $('#gameInstructions').show();
+
+	//Ξεκινάμε listener που κάνει reset το παιχνίδι όταν ο χρήστης κάνει refresh ή κλήση την σελίδα
+	window.addEventListener("beforeunload", function(e){
+		reset_board();
+	 }, false);
+
+	update_info();
+	game_status_update();
+}
+
+function show_error(data) {
+	var x = data.responseJSON;
+	notify("Oh no",x.errormesg);
+}
+
+//Ajax request για game_status
+function game_status_update() {
+	clearTimeout(timer);
+
+	$.ajax({url: "rpsls.php/status/", 
+	success: update_status, 
+	headers: {"X-Token": me.token}});
+}
 
 //Ενημέρωση παιχτών για τα στοιχεία τους
 function update_info(){
@@ -67,12 +191,11 @@ function update_info(){
 	if (me.player_number =='p1'){
 		player='Player 1';
 	}else {player='Player 2';}
-
+	
 
 	if (game_status.player_turn=='p1'){
 		player_turn='Player 1';
 	}else { player_turn='Player 2';}
-	
 
 	if(game_status.status=='started' && me.token!=null){
 		$('#game_info').html("<h4><b> Score:</h4></b>" + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '
@@ -81,38 +204,15 @@ function update_info(){
 
 		if (game_status.player_turn==me.player_number) {
 			$('#player_turn').html("<h6> It's </b> your turn to play now.</h6>");
-		} else {  $('#player_turn').html("<h6> It's " + player_turn +'</b> turn to play now.</h6>'); }
+		} else {  
+			$('#player_turn').html("<h6> It's " + player_turn +'</b> turn to play now.</h6>'); 
+		}
 	}else{
 		$('#game_info').html("<h4><b> Score:</h4></b>"  + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '+ game_status.status);
         $('#player_turn').html("<h6>Playing as " + player + "</h6>");
     }
 }
 
-//Εισαγωγή των στοιχείων του παίχτη και ενημέρωση του games_status
-function login_result(data) {
-	me = data[0];
-	$('#loginCol').hide();
-    $('#reset_game').show();
-    $('#playerControls').show();
-    $('#gameInstructions').show();
-
-	//Ξεκινάμε listener που κάνει reset το παιχνίδι όταν ο χρήστης κάνει refresh ή κλήση την σελίδα
-	window.addEventListener("beforeunload", function(e){
-		reset_board();
-	 }, false);
-
-	update_info();
-	game_status_update();
-}
-
-//Ajax request για game_status
-function game_status_update() {
-	clearTimeout(timer);
-
-	$.ajax({url: "rpsls.php/status/", 
-	success: update_status, 
-	headers: {"X-Token": me.token}});
-}
 
 function update_status(data) {
 	if (data==null) {
@@ -172,49 +272,7 @@ function update_status(data) {
     } else { 
 		timer= setTimeout(function() { game_status_update();}, 500); 
 	}
-}
 
-
-//Ajax request για κίνηση
-function do_move(choice) {
-	player_number = me.player_number;
-
-	$.ajax({url: "rpsls.php/board/make_move/", 
-			method: 'POST',
-			dataType: "json",
-			headers: { "X-Token": me.token },
-			contentType: 'application/json',
-			data: JSON.stringify( {choice, player_number}),
-			success: game_status_update});
-}
-
-function reset_board() {
-	clearTimeout(timer);
-	if (game_status.status!='not active') {
-		$.ajax({url: "rpsls.php/board/",
-		headers: {"X-Token": me.token},
-		method: 'POST'});
-	}
-	me = { nickname: null, token: null, color_picked: null };
-
-    $('#reset_game').hide(150);
-    $('#playerControls').hide(150);
-    $('#gameInstructions').hide(150);
-    $('#loginCol').show(500);
-
-	game_status_update();
-}
-
-function show_error(data) {
-	var x = data.responseJSON;
-	alert(x.errormesg);
-}
-
-function notify(title,body) {
-	$("#notify_modal .modal-title").text(title);
-	$("#notify_modal .modal-body").text(body);
-	notify_modal.show();
-}
 
 //Ενημέρωση των παιχτών για aborded
 function opponent_aborded(data){
@@ -235,48 +293,18 @@ function alert_winner() {
 	if (me.token!=null){
 		
 		if (winner=='D'){
-			play_again('The game was a tie..', null);
+			play_again('The game was a tie..', "tie");
 		}else if (winner==me.player_number){
 			score.me++;
-			play_again('You won because ' + game_status.result_text, true);
+			play_again('You won because ' + game_status.result_text, "won");
+			if (sounds) { audioYouWin.play(); }
+			
 		}else{
 			score.opponent++;
-			play_again('You lost because ' + game_status.result_text, false);
+			play_again('You lost because ' + game_status.result_text, "lost");
+			if (sounds) { audioYouLose.play(); }
 		}
 	}
 }
-
-//Όταν πατήσει ο χρήστης Play Again
-function play_again(title, won) {
-
-	$("#end_modal .modal-title").text(title);
-	
-	// $("#end_modal .modal-header").classList.ädd("modal-header-success");
-
-	$('#modal_quit').on('click', function(){ surrendered=true; update_info(); reset_board(); });
-
-	$('#modal_play').on('click', function(){ 
-		$.ajax({url: "rpsls.php/board/play_again/", 
-		method: 'POST',
-		dataType: "json",
-		headers: { "X-Token": me.token },
-		contentType: 'application/json',
-		success: delay(500).then(() => game_status_update())});
-
-		end_modal.hide();
-	});
-
-	if (won==true) {
-		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-success");
-	} else if (won==false) {
-		document.getElementById('end_modal').querySelector(".modal-header").classList.add("modal-header-danger");
-	}
-
-	end_modal.show();
-}
-
-//delay function για μέθοδο play_again (χρειάζεται μερικά ms για να διαβάσει το ανανεωμένο status)
-function delay(time) {
-	return new Promise(resolve => setTimeout(resolve, time));
-  }
+ 	
 }

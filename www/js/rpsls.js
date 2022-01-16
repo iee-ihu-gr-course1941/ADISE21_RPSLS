@@ -219,7 +219,7 @@ function update_info(){
 		if (game_status.player_turn==me.player_number) {
 			$('#player_turn').html("<h6> It's </b> your turn to play now.</h6>");
 		} else {  
-			$('#player_turn').html("<h6> It's " + opponent +'</b> turn to play now.</h6>');
+			$('#player_turn').html("<h6> It's " + opponent +"'s</b> turn to play now.</h6>");
 		}
 	}else{
 		$('#game_info').html("<h4><b> Score:</h4></b>"  + me.username + ": " + score.me + "</br>Opponent: " + score.opponent + '<br/> <br/> <h4>Game Status:</h4>Game state: '+ game_status.status);

@@ -46,13 +46,23 @@ switch ($r=array_shift($request)){
 		exit;
 }
 
+//Έλεγχος της method (Από το path /board)
+function handle_board($method){
+	if($method=='GET'){
+		print json_encode(['errormesg'=>"Method $method not allowed here."]);
+	}else if($method=='POST'){
+		reset_board();
+	}
+}
+
+
+//Έλεγχος για των pathes  από /players
 function handle_player($method, $request,$input) {
 	switch ($b=array_shift($request)) {
 		case '':
 		case null:
 			if($method=='GET'){
 				show_users($method);
-				reset_board();
 			}else if($method=='POST'){
 				handle_user($method, $b,$input);
 			}else{
@@ -65,13 +75,4 @@ function handle_player($method, $request,$input) {
             break;
 	}
 }
-
-function handle_board($method){
-	if($method=='GET'){
-		print json_encode(['errormesg'=>"Method $method not allowed here."]);
-	}else if($method=='POST'){
-		reset_board();
-	}
-}
-
 ?>

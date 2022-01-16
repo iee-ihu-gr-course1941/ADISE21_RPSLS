@@ -209,6 +209,6 @@ H κατάσταση παιχνιδιού έχει τα παρακάτω στο�
 
 ![Login Page](/screenshots/login.jpg?raw=true "Login Page")
 ![In-Game](/screenshots/in-game.jpg?raw=true "In-Game")
-![Win - Lose](/screenshots/win-lose.jpg?raw=true "Win - Lose")
+![Win - Lose](/screenshots/win_lose.jpg?raw=true "Win - Lose")
 ![Opponent Leaving](/screenshots/opponent-left.jpg?raw=true "Opponent Leaving")
 ![Abort](/screenshots/abort.jpg?raw=true "Abort")
